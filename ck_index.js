@@ -11,14 +11,15 @@ let mediaRecorder;
 const parts = [];
 
 previewBtn.disabled = true;
-uploadBtn.disabled = true;
+// uploadBtn.disabled = true;
 downloadBtn.disabled = true;
+stopBtn.disabled = true;
 
 videoSelect.onchange = getStream;
 recordButton.onclick = record;
 stopBtn.onclick = stop;
 previewBtn.onclick = preview;
-uploadBtn.onclick = upload;
+// uploadBtn.onclick = upload;
 downloadBtn.onclick = download;
 
 getStream().then(getDevices).then(gotDevices);
@@ -79,6 +80,7 @@ function record() {
   };
   recordButton.innerHTML =
     "<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> Recording...";
+  stopBtn.disabled = false;
 }
 
 // Stop Record Function
@@ -87,8 +89,28 @@ function stop() {
   mediaRecorder.stop();
   recordButton.innerHTML = "Start Record";
   previewBtn.disabled = false;
-  uploadBtn.disabled = false;
+  // uploadBtn.disabled = false;
   downloadBtn.disabled = false;
+  stopBtn.disabled = false;
+
+  var fileName = "";
+  Swal.fire({
+    title: "Enter File Name",
+    input: "text",
+    inputAttributes: {
+      autocapitalize: "off",
+    },
+    allowEscapeKey: false,
+    allowOutsideClick: false,
+    showCancelButton: true,
+    confirmButtonText: "Save",
+    cancelButtonText: "Discard",
+    showLoaderOnConfirm: true,
+  }).then((result) => {
+    if (result.value) {
+      upload(result.value);
+    }
+  });
 }
 
 // Preview Function
@@ -115,24 +137,29 @@ function preview() {
 
 // Upload to Server Function
 
-function upload() {
+function upload(fileName) {
+  // console.log(window.URL.createObjectURL(new Blob(parts)));
   recordButton.disabled = true;
   previewBtn.disabled = true;
-  stopBtn.disabled = true;
+  stopBtn.disabled = false;
   let blob = new Blob(parts, { type: "video/mp4" });
+  // alert(blob);
+  // console.log(blob);
   let formData = new FormData();
-  formData.append("video", blob);
+  formData.append("videoData", blob);
+  formData.append("fileName", fileName);
   formData.append("send", "true");
-  uploadBtn.innerHTML =
-    "<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> Uploading...";
+  // uploadBtn.innerHTML =
+  // "<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> Uploading...";
   $.ajax({
-    url: "upload.php",
+    url: "ck_upload.php",
     type: "POST",
     data: formData,
     processData: false,
     contentType: false,
     success: function (data) {
-      uploadBtn.innerHTML = "Upload Video";
+      // alert(data);
+      // uploadBtn.innerHTML = "Upload Video";
       recordButton.disabled = false;
       previewBtn.disabled = false;
       stopBtn.disabled = false;
