@@ -25,7 +25,7 @@
             <button id="btn" class="btn btn-primary">Start Recording</button>
             <button id="stopbtn" class="btn btn-danger">Stop Recording</button>
             <button id="preview" class="btn btn-warning">Preview Video</button>
-            <!--             <button id="upload" class="btn btn-secondary">Upload Video</button> -->
+            <button id="upload" class="btn btn-secondary">Upload Video</button>
             <button id="download" class="btn btn-danger">Download Video</button>
         </div>
         <video id="previewVideo" class="mt-2"></video>

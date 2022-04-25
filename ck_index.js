@@ -11,7 +11,7 @@ let mediaRecorder;
 const parts = [];
 
 previewBtn.disabled = true;
-// uploadBtn.disabled = true;
+uploadBtn.disabled = true;
 downloadBtn.disabled = true;
 stopBtn.disabled = true;
 
@@ -19,7 +19,7 @@ videoSelect.onchange = getStream;
 recordButton.onclick = record;
 stopBtn.onclick = stop;
 previewBtn.onclick = preview;
-// uploadBtn.onclick = upload;
+uploadBtn.onclick = upload;
 downloadBtn.onclick = download;
 
 getStream().then(getDevices).then(gotDevices);
@@ -89,28 +89,9 @@ function stop() {
   mediaRecorder.stop();
   recordButton.innerHTML = "Start Record";
   previewBtn.disabled = false;
-  // uploadBtn.disabled = false;
+  uploadBtn.disabled = false;
   downloadBtn.disabled = false;
   stopBtn.disabled = false;
-
-  var fileName = "";
-  Swal.fire({
-    title: "Enter File Name",
-    input: "text",
-    inputAttributes: {
-      autocapitalize: "off",
-    },
-    allowEscapeKey: false,
-    allowOutsideClick: false,
-    showCancelButton: true,
-    confirmButtonText: "Save",
-    cancelButtonText: "Discard",
-    showLoaderOnConfirm: true,
-  }).then((result) => {
-    if (result.value) {
-      upload(result.value);
-    }
-  });
 }
 
 // Preview Function
@@ -137,34 +118,62 @@ function preview() {
 
 // Upload to Server Function
 
-function upload(fileName) {
-  // console.log(window.URL.createObjectURL(new Blob(parts)));
-  recordButton.disabled = true;
-  previewBtn.disabled = true;
-  stopBtn.disabled = false;
-  let blob = new Blob(parts, { type: "video/mp4" });
-  // alert(blob);
-  // console.log(blob);
-  let formData = new FormData();
-  formData.append("videoData", blob);
-  formData.append("fileName", fileName);
-  formData.append("send", "true");
-  // uploadBtn.innerHTML =
-  // "<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> Uploading...";
-  $.ajax({
-    url: "ck_upload.php",
-    type: "POST",
-    data: formData,
-    processData: false,
-    contentType: false,
-    success: function (data) {
-      // alert(data);
-      // uploadBtn.innerHTML = "Upload Video";
-      recordButton.disabled = false;
-      previewBtn.disabled = false;
-      stopBtn.disabled = false;
-      console.log(data);
+function upload() {
+  var fileName = "";
+  Swal.fire({
+    title: "Enter File Name",
+    input: "text",
+    inputAttributes: {
+      autocapitalize: "off",
     },
+    allowEscapeKey: false,
+    allowOutsideClick: false,
+    showCancelButton: true,
+    confirmButtonText: "Save",
+    cancelButtonText: "Discard",
+    showLoaderOnConfirm: true,
+  }).then((result) => {
+    if (result.value) {
+      // console.log(window.URL.createObjectURL(new Blob(parts)));
+      recordButton.disabled = true;
+      previewBtn.disabled = true;
+      stopBtn.disabled = false;
+      let blob = new Blob(parts, { type: "video/mp4" });
+      // alert(blob);
+      // console.log(blob);
+      let formData = new FormData();
+      formData.append("videoData", blob);
+      formData.append("fileName", result.value);
+      formData.append("send", "true");
+      uploadBtn.innerHTML =
+        "<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> Uploading...";
+      $.ajax({
+        url: "ck_upload.php",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (data) {
+          // alert(data);
+          //fire success swal
+          Swal.fire({
+            icon: "success",
+            title: "Success!",
+            text: "Upload Successful",
+            type: "success",
+            confirmButtonText: "Done",
+          }).then((result) => {
+            location.reload();
+          });
+          uploadBtn.innerHTML = "Upload Video";
+
+          recordButton.disabled = false;
+          previewBtn.disabled = false;
+          stopBtn.disabled = false;
+          console.log(data);
+        },
+      });
+    }
   });
 }
 
